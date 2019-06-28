@@ -1,1 +1,1 @@
-# GenericOctree
+# Generic Spatial Data Structure
