@@ -1,5 +1,6 @@
 list(APPEND EXAMPLES
   "ExQuadtree"
+  "ExOctree"
 )
 
 list(APPEND USE_LIBRARIES
