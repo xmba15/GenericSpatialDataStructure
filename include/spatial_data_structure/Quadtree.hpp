@@ -40,32 +40,37 @@ class Quadtree : public std::enable_shared_from_this<Quadtree<T, Container>>
     using Ptr = std::shared_ptr<Quadtree>;
     struct BoundingBox;
 
-    Quadtree(const BoundingBox& bbox, int capacity, int depth);
-    Quadtree(const BoundingBox& bbox, int capacity);
-    explicit Quadtree(const BoundingBox& bbox);
+    Quadtree(const BoundingBox &bbox, int capacity, int depth);
+    Quadtree(const BoundingBox &bbox, int capacity);
+    explicit Quadtree(const BoundingBox &bbox);
 
     void subdivide();
-    void insertElem(const PointType& point);
-    void insertElems(const VecPointType& points);
-    Quadtree::Ptr searchElem(const PointType& point);
-    void deleteElem(const PointType& point);
-    void deleteElems(const VecPointType& points);
-    VecPointType queryRange(const BoundingBox& bbox);
-    VecPointType nearestSearch(const PointType& point, size_t k);
+    void insertElem(const PointType &point);
+    void insertElems(const VecPointType &points);
+    Quadtree::Ptr searchElem(const PointType &point);
+    void deleteElem(const PointType &point);
+    void deleteElems(const VecPointType &points);
+    VecPointType queryRange(const BoundingBox &bbox);
+    VecPointType nearestSearch(const PointType &point, size_t k);
 
-    const BoundingBox& bbox() const
+    const BoundingBox &bbox() const
     {
         return this->_bbox;
     }
 
-    const VecPointType& points() const
+    const VecPointType &points() const
     {
         return this->_points;
     }
 
-    VecPointType& points()
+    VecPointType &points()
     {
         return this->_points;
+    }
+
+    int pointSize()
+    {
+        return this->countElemsOfChild(std::enable_shared_from_this<Quadtree>::shared_from_this());
     }
 
  private:
@@ -86,7 +91,7 @@ class Quadtree : public std::enable_shared_from_this<Quadtree<T, Container>>
 };
 
 template <typename T, class Container>
-Quadtree<T, Container>::Quadtree(const BoundingBox& bbox, int capacity, int depth)
+Quadtree<T, Container>::Quadtree(const BoundingBox &bbox, int capacity, int depth)
     : _bbox(bbox), _capacity(capacity), _depth(depth)
 {
     _points.reserve(capacity);
@@ -99,11 +104,11 @@ Quadtree<T, Container>::Quadtree(const BoundingBox& bbox, int capacity, int dept
 }
 
 template <typename T, class Container>
-Quadtree<T, Container>::Quadtree(const BoundingBox& bbox, int capacity) : _bbox(bbox), _capacity(capacity), _depth(0)
+Quadtree<T, Container>::Quadtree(const BoundingBox &bbox, int capacity) : _bbox(bbox), _capacity(capacity), _depth(0)
 {
 }
 
-template <typename T, class Container> Quadtree<T, Container>::Quadtree(const BoundingBox& bbox) : Quadtree(bbox, 1)
+template <typename T, class Container> Quadtree<T, Container>::Quadtree(const BoundingBox &bbox) : Quadtree(bbox, 1)
 {
 }
 
@@ -129,7 +134,7 @@ template <typename T, class Container> void Quadtree<T, Container>::subdivide()
     _se->_parent = std::enable_shared_from_this<Quadtree>::shared_from_this();
 
     while (!this->_points.empty()) {
-        const PointType& point = this->_points.back();
+        const PointType &point = this->_points.back();
         this->_points.pop_back();
         this->_nw->insertElem(point);
         this->_ne->insertElem(point);
@@ -138,7 +143,7 @@ template <typename T, class Container> void Quadtree<T, Container>::subdivide()
     }
 }
 
-template <typename T, class Container> void Quadtree<T, Container>::insertElem(const PointType& point)
+template <typename T, class Container> void Quadtree<T, Container>::insertElem(const PointType &point)
 {
     if (!this->_bbox.containsPoint(point)) {
         return;
@@ -149,7 +154,7 @@ template <typename T, class Container> void Quadtree<T, Container>::insertElem(c
         return;
     }
 
-    // current node is leaf or node
+    // current node is leaf
     if (!this->_nw) {
         if (this->_points.size() < this->_capacity) {
             this->_points.emplace_back(point);
@@ -167,7 +172,7 @@ template <typename T, class Container> void Quadtree<T, Container>::insertElem(c
 }
 
 template <typename T, class Container>
-typename Quadtree<T, Container>::Ptr Quadtree<T, Container>::searchElem(const PointType& point)
+typename Quadtree<T, Container>::Ptr Quadtree<T, Container>::searchElem(const PointType &point)
 {
     Quadtree::Ptr result = nullptr;
 
@@ -184,7 +189,7 @@ typename Quadtree<T, Container>::Ptr Quadtree<T, Container>::searchElem(const Po
         return result;
     }
 
-    for (const Quadtree::Ptr& qPtr : {_nw, _ne, _sw, _se}) {
+    for (const Quadtree::Ptr &qPtr : {_nw, _ne, _sw, _se}) {
         if (qPtr->_bbox.containsPoint(point)) {
             result = qPtr->searchElem(point);
         }
@@ -193,14 +198,14 @@ typename Quadtree<T, Container>::Ptr Quadtree<T, Container>::searchElem(const Po
     return result;
 }
 
-template <typename T, class Container> void Quadtree<T, Container>::insertElems(const VecPointType& points)
+template <typename T, class Container> void Quadtree<T, Container>::insertElems(const VecPointType &points)
 {
-    for (const PointType& point : points) {
+    for (const PointType &point : points) {
         this->insertElem(point);
     }
 }
 
-template <typename T, class Container> void Quadtree<T, Container>::deleteElem(const PointType& point)
+template <typename T, class Container> void Quadtree<T, Container>::deleteElem(const PointType &point)
 {
     Quadtree::Ptr quadHoldsPoint = this->searchElem(point);
     if (!quadHoldsPoint) {
@@ -216,15 +221,15 @@ template <typename T, class Container> void Quadtree<T, Container>::deleteElem(c
     }
 }
 
-template <typename T, class Container> void Quadtree<T, Container>::deleteElems(const VecPointType& points)
+template <typename T, class Container> void Quadtree<T, Container>::deleteElems(const VecPointType &points)
 {
-    for (const PointType& point : points) {
+    for (const PointType &point : points) {
         this->deleteElem(point);
     }
 }
 
 template <typename T, class Container>
-typename Quadtree<T, Container>::VecPointType Quadtree<T, Container>::queryRange(const BoundingBox& bbox)
+typename Quadtree<T, Container>::VecPointType Quadtree<T, Container>::queryRange(const BoundingBox &bbox)
 {
     VecPointType results;
 
@@ -233,13 +238,13 @@ typename Quadtree<T, Container>::VecPointType Quadtree<T, Container>::queryRange
     }
 
     std::copy_if(this->_points.begin(), this->_points.end(), std::back_inserter(results),
-                 [bbox](const PointType& p) { return bbox.containsPoint(p); });
+                 [bbox](const PointType &p) { return bbox.containsPoint(p); });
 
     if (!this->_nw) {
         return results;
     }
 
-    for (const Quadtree::Ptr& qPtr : {_nw, _ne, _sw, _se}) {
+    for (const Quadtree::Ptr &qPtr : {_nw, _ne, _sw, _se}) {
         VecPointType qPtrQueries = qPtr->queryRange(bbox);
         std::copy(qPtrQueries.begin(), qPtrQueries.end(), std::back_inserter(results));
     }
@@ -248,8 +253,10 @@ typename Quadtree<T, Container>::VecPointType Quadtree<T, Container>::queryRange
 }
 
 template <typename T, class Container>
-typename Quadtree<T, Container>::VecPointType Quadtree<T, Container>::nearestSearch(const PointType& point, size_t k)
+typename Quadtree<T, Container>::VecPointType Quadtree<T, Container>::nearestSearch(const PointType &point, size_t k)
 {
+    assert(k != 0);
+
     using DistancePoint = std::pair<double, PointType>;
     using DistanceQuadrant = std::pair<double, Quadtree::Ptr>;
 
@@ -269,19 +276,19 @@ typename Quadtree<T, Container>::VecPointType Quadtree<T, Container>::nearestSea
 
         if (pointPriority.size() >= k) {
             std::sort(pointPriority.begin(), pointPriority.end(),
-                      [](const DistancePoint& dp1, const DistancePoint& dp2) { return dp1.first < dp2.first; });
+                      [](const DistancePoint &dp1, const DistancePoint &dp2) { return dp1.first < dp2.first; });
 
-            if (pointPriority.back().first < currentDistQuadPair.first) {
+            if (pointPriority[k - 1].first < currentDistQuadPair.first) {
                 break;
             }
         }
 
         if (currentQuad->_nw) {
-            for (const Quadtree::Ptr& qPtr : {currentQuad->_nw, currentQuad->_ne, currentQuad->_sw, currentQuad->_se}) {
+            for (const Quadtree::Ptr &qPtr : {currentQuad->_nw, currentQuad->_ne, currentQuad->_sw, currentQuad->_se}) {
                 quadrantMinHeap.push(std::make_pair(qPtr->bbox().distanceToPoint(point), qPtr));
             }
         } else {
-            for (const PointType& p : currentQuad->points()) {
+            for (const PointType &p : currentQuad->points()) {
                 pointPriority.emplace_back(std::make_pair((p - point).norm(), p));
             }
         }
@@ -305,7 +312,7 @@ template <typename T, class Container> int Quadtree<T, Container>::countElemsOfC
     int result = parentNode->points().size();
 
     if (parentNode->_nw) {
-        for (const Quadtree::Ptr& qPtr : {parentNode->_nw, parentNode->_ne, parentNode->_sw, parentNode->_se}) {
+        for (const Quadtree::Ptr &qPtr : {parentNode->_nw, parentNode->_ne, parentNode->_sw, parentNode->_se}) {
             result += countElemsOfChild(qPtr);
         }
     }
@@ -315,7 +322,7 @@ template <typename T, class Container> int Quadtree<T, Container>::countElemsOfC
 
 template <typename T, class Container> void Quadtree<T, Container>::mergeIntoParent(Quadtree::Ptr parentNode)
 {
-    if (!parentNode || parentNode->_nw) {
+    if (!parentNode || !parentNode->_nw) {
         return;
     }
 
@@ -337,7 +344,7 @@ template <typename T, class Container> struct Quadtree<T, Container>::BoundingBo
     {
     }
 
-    bool containsPoint(const PointType& point) const
+    bool containsPoint(const PointType &point) const
     {
         return _xMin <= point[0] && _yMin <= point[1] && _xMax >= point[0] && _yMax >= point[1];
     }
@@ -352,7 +359,7 @@ template <typename T, class Container> struct Quadtree<T, Container>::BoundingBo
                         '          '
                        xMin       xMax
     **/
-    double distanceToPoint(const PointType& point) const
+    double distanceToPoint(const PointType &point) const
     {
         if (point[0] < this->_xMin)  // Region 1, 8, 7
         {
@@ -393,13 +400,13 @@ template <typename T, class Container> struct Quadtree<T, Container>::BoundingBo
         }
     }
 
-    bool intersectsBoundingBox(const BoundingBox& other) const
+    bool intersectsBoundingBox(const BoundingBox &other) const
     {
         return (this->_xMin <= other._xMax && this->_xMax >= other._xMin) &&
                (this->_yMin <= other._yMax && this->_yMax >= other._yMin);
     }
 
-    friend bool intersectsBoundBox(const BoundingBox& first, const BoundingBox& second)
+    friend bool intersectsBoundBox(const BoundingBox &first, const BoundingBox &second)
     {
         return first.intersectsBoundingBox(second);
     }
@@ -414,7 +421,7 @@ template <typename T, class Container> struct Quadtree<T, Container>::BoundingBo
         return (_yMin + _yMax) / 2.0;
     }
 
-    friend std::ostream& operator<<(std::ostream& os, const BoundingBox& bbox)
+    friend std::ostream &operator<<(std::ostream &os, const BoundingBox &bbox)
     {
         os << "bounding box: \n";
         os << "xMin: " << bbox._xMin << "\n"
