@@ -3,13 +3,12 @@ cmake_minimum_required(VERSION 3.0)
 project(spatial_data_structure)
 set (CMAKE_CXX_STANDARD 11)
 
-# list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
-# include(utility)
-# include(googletest)
-# fetch_googletest(
-#     ${PROJECT_SOURCE_DIR}/cmake
-#     ${PROJECT_BINARY_DIR}/googletest
-#     )
+list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
+include(googletest)
+fetch_googletest(
+    ${PROJECT_SOURCE_DIR}/cmake
+    ${PROJECT_BINARY_DIR}/googletest
+)
 
 option(BUILD_EXAMPLES "Option whether to build examples" OFF)
 
@@ -30,5 +29,8 @@ if(WITH_DEBUG)
   )
 endif(WITH_DEBUG)
 
-# enable_testing()
-# add_subdirectory(tests)
+option(WITH_TEST "Enable test" OFF)
+if(WITH_TEST)
+enable_testing()
+add_subdirectory(tests)
+endif(WITH_TEST)

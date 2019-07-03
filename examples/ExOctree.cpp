@@ -17,7 +17,7 @@
 #include <random>
 #include <spatial_data_structure/Octree.hpp>
 
-int main(int argc, char *argv[])
+int main(int argc, char* argv[])
 {
     using Octree = algo::Octree<double>;
 
@@ -52,9 +52,9 @@ int main(int argc, char *argv[])
         std::cout << "test computation time between naive nearest search && knn by octree: \n";
         const double LOWER_BOUND = 0;
         const double UPPER_BOUND = 200;
-        const int NUM_POINTS = 50;
-        const int NUM_POINTS_TO_CHECK = 10;
-        const int K = 4;
+        const int NUM_POINTS = 5000;
+        const int NUM_POINTS_TO_CHECK = 200;
+        const int K = 1;
 
         Octree::VecPointType points;
         Octree::VecPointType pointsToCheck;
@@ -81,10 +81,10 @@ int main(int argc, char *argv[])
         {
             std::cout << "naive method: \n";
             auto start = std::chrono::high_resolution_clock::now();
-            for (const Octree::PointType &pointToCheck : pointsToCheck) {
+            for (const Octree::PointType& pointToCheck : pointsToCheck) {
                 auto tempPV(points);
                 std::sort(tempPV.begin(), tempPV.end(),
-                          [pointToCheck](const Octree::PointType &p1, const Octree::PointType &p2) {
+                          [pointToCheck](const Octree::PointType& p1, const Octree::PointType& p2) {
                               return (p1 - pointToCheck).norm() < (p2 - pointToCheck).norm();
                           });
             }
@@ -104,7 +104,7 @@ int main(int argc, char *argv[])
             Octree::Ptr octree = std::make_shared<Octree>(bbox);
             octree->insertElems(points);
 
-            for (const Octree::PointType &pointToCheck : pointsToCheck) {
+            for (const Octree::PointType& pointToCheck : pointsToCheck) {
                 Octree::VecPointType knn = octree->nearestSearch(pointToCheck, K);
             }
 
