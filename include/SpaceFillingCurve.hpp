@@ -11,14 +11,13 @@
  *
  */
 
-#ifndef SPACEFILLINGCURVE_HPP_
-#define SPACEFILLINGCURVE_HPP_
+#pragma once
 
 #include <cstdint>
 #include <sstream>
 #include <string>
 
-namespace robotics
+namespace algo
 {
 uint64_t Part1By2(uint32_t n);
 std::string bin(uint32_t n);
@@ -61,5 +60,4 @@ std::string bin(uint64_t n)
     return ss.str();
 }
 
-}  // namespace robotics
-#endif /* SPACEFILLINGCURVE_HPP_ */
+}  // namespace algo
