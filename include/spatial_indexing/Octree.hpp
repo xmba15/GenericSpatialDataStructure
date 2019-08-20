@@ -11,8 +11,7 @@
  *
  */
 
-#ifndef OCTREE_HPP_
-#define OCTREE_HPP_
+#pragma once
 
 #ifdef WITH_DEBUG
 #define ENABLE_DEBUG 1
@@ -20,8 +19,4 @@
 
 namespace algo
 {
-
-
-
 }  // namespace algo
-#endif /* OCTREE_HPP_ */

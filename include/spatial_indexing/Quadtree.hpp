@@ -11,8 +11,7 @@
  *
  */
 
-#ifndef OCTREE_HPP_
-#define OCTREE_HPP_
+#pragma once
 
 #include <Eigen/Eigen>
 #include <algorithm>
@@ -434,4 +433,3 @@ namespace algo
 // };
 
 }  // namespace algo
-#endif /* OCTREE_HPP_ */
