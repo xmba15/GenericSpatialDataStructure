@@ -68,24 +68,5 @@ inline uint64_t computeXYZKey(uint64_t x, uint64_t y, int8_t maxLevel)
     return key;
 }
 
-inline std::string bin(const uint32_t n)
-{
-    std::stringstream ss;
-    for (uint32_t i = 1 << 31; i > 0; i >>= 1) {
-        (n & i) ? (ss << 1) : (ss << 0);
-    }
-
-    return ss.str();
-}
-
-inline std::string bin(const uint64_t n)
-{
-    std::stringstream ss;
-    for (uint64_t i = 1UL << 63; i > 0; i >>= 1) {
-        (n & i) ? (ss << 1) : (ss << 0);
-    }
-
-    return ss.str();
-}
 
 }  // namespace algo

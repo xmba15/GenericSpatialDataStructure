@@ -2,6 +2,7 @@ list(APPEND EXAMPLES
   "ExQuadtree"
   "ExOctree"
   "ExSpaceFillingCurve"
+  "ExBitTwiddling"
 )
 
 include(example_utility)
