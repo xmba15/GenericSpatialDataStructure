@@ -165,7 +165,7 @@ Octree<DATA_TYPE, Container>::createOctant(DATA_TYPE x, DATA_TYPE y, DATA_TYPE z
                 mortonCode |= 2;
             }
 
-            if (curPoint.y() > y) {
+            if (curPoint.z() > z) {
                 mortonCode |= 4;
             }
 
@@ -192,7 +192,7 @@ Octree<DATA_TYPE, Container>::createOctant(DATA_TYPE x, DATA_TYPE y, DATA_TYPE z
 
             DATA_TYPE childX = x + factor[(i & 1) > 0] * radius;
             DATA_TYPE childY = y + factor[(i & 2) > 0] * radius;
-            DATA_TYPE childZ = y + factor[(i & 4) > 0] * radius;
+            DATA_TYPE childZ = z + factor[(i & 4) > 0] * radius;
 
             octant->child[i] = this->createOctant(childX, childY, childZ, childRadius, childStarts[i], childEnds[i],
                                                   childSizes[i], level + 1);

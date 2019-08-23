@@ -38,7 +38,7 @@ int main(int argc, char* argv[])
             const double LOWER_BOUND = -500;
             const double UPPER_BOUND = 500;
             const int NUM_POINTS = 400;
-            const int NUM_POINTS_TO_CHECK = 10;
+            const int NUM_POINTS_TO_CHECK = 100;
             const int K = 1;
 
             Quadtree::VecPointType points;
@@ -94,6 +94,23 @@ int main(int argc, char* argv[])
                 executedTime *= 1e-9;
                 std::cout << "Time taken by program is : " << std::fixed << executedTime << std::setprecision(6);
                 std::cout << " sec\n";
+            }
+
+            {
+                Quadtree quadtree(points);
+
+                for (const Quadtree::PointType& pointToCheck : pointsToCheck) {
+                    auto tempPV(points);
+                    std::sort(tempPV.begin(), tempPV.end(),
+                              [pointToCheck](const Quadtree::PointType& p1, const Quadtree::PointType& p2) {
+                                  return (p1 - pointToCheck).norm() < (p2 - pointToCheck).norm();
+                              });
+
+                    int nearestNeighborIdx = quadtree.findNeighbor(pointToCheck);
+                    Quadtree::PointType nn = points[nearestNeighborIdx];
+
+                    std::cout << (nn - tempPV.front()) << "\n";
+                }
             }
         }
     }

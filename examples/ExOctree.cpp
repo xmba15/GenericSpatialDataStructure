@@ -28,9 +28,13 @@ int main(int argc, char* argv[])
 
         Octree octree(points);
 
-        Octree::PointType query({-20, -34.3, -1000});
+        // Octree::PointType query({-20, -34.3, -1000});
+        Octree::PointType query({12.2, 34.5, 56.8});
 
         bool result = octree.insideOctreeSpace(query);
+
+        int nnIdx = octree.findNeighbor(query);
+        std::cout << points[nnIdx] << "\n";
 
         std::cout << octree.traversal().str() << "\n";
 
@@ -39,7 +43,7 @@ int main(int argc, char* argv[])
             const double LOWER_BOUND = 0;
             const double UPPER_BOUND = 200;
             const int NUM_POINTS = 5000;
-            const int NUM_POINTS_TO_CHECK = 200;
+            const int NUM_POINTS_TO_CHECK = 20;
             const int K = 1;
 
             Octree::VecPointType points;
@@ -98,6 +102,24 @@ int main(int argc, char* argv[])
                 std::cout << "Time taken by program is : " << std::fixed << executedTime << std::setprecision(6);
                 std::cout << " sec\n";
             }
+
+            {
+                Octree octree(points);
+
+                for (const Octree::PointType& pointToCheck : pointsToCheck) {
+                    auto tempPV(points);
+                    std::sort(tempPV.begin(), tempPV.end(),
+                              [pointToCheck](const Octree::PointType& p1, const Octree::PointType& p2) {
+                                  return (p1 - pointToCheck).norm() < (p2 - pointToCheck).norm();
+                              });
+
+                    int nearestNeighborIdx = octree.findNeighbor(pointToCheck);
+                    Octree::PointType nn = points[nearestNeighborIdx];
+
+                    std::cout << (nn - tempPV.front()) << "\n";
+                }
+            }
+
         }
     }
 
