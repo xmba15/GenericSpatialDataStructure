@@ -13,8 +13,8 @@
 
 #include "gtest/gtest.h"
 #include <ctime>
-#include <spatial_indexing/BitTwiddling.hpp>
-#include <spatial_indexing/SpaceFillingCurve.hpp>
+#include <spatial_partioning/BitTwiddling.hpp>
+#include <spatial_partioning/SpaceFillingCurve.hpp>
 
 class TestSpaceFillingCurve : public ::testing::Test
 {

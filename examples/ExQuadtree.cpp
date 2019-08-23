@@ -15,7 +15,7 @@
 #include <iomanip>
 #include <iostream>
 #include <random>
-#include <spatial_indexing/Quadtree.hpp>
+#include <spatial_partioning/Quadtree.hpp>
 
 int main(int argc, char* argv[])
 {

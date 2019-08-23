@@ -1,8 +1,8 @@
 cmake_minimum_required(VERSION 3.8)
 
-project(libspatial_indexing)
+project(libspatial_partioning)
 
-set(PROJECT_TARGET_LIB_NAME "spatial_indexing")
+set(PROJECT_TARGET_LIB_NAME "spatial_partioning")
 
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 

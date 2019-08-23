@@ -11,7 +11,7 @@
 
 #include <iostream>
 
-#include <spatial_indexing/BitTwiddling.hpp>
+#include <spatial_partioning/BitTwiddling.hpp>
 
 int main(int argc, char* argv[])
 {

@@ -11,4 +11,4 @@
  *
  */
 
-#include <spatial_indexing/Octree.hpp>
+#include <spatial_partioning/Octree.hpp>

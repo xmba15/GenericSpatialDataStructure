@@ -11,4 +11,4 @@
  *
  */
 
-#include <spatial_indexing/Quadtree.hpp>
+#include <spatial_partioning/Quadtree.hpp>

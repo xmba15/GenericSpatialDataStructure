@@ -15,7 +15,7 @@
 #include <iomanip>
 #include <iostream>
 #include <random>
-#include <spatial_indexing/Octree.hpp>
+#include <spatial_partioning/Octree.hpp>
 
 int main(int argc, char* argv[])
 {

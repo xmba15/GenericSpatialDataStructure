@@ -1,8 +1,8 @@
 set(LIBRARY_NAME "${PROJECT_TARGET_LIB_NAME}")
 
 file(GLOB SOURCE_FILES
-  ${CMAKE_CURRENT_LIST_DIR}/spatial_indexing/*.cpp
-  ${CMAKE_CURRENT_LIST_DIR}/spatial_indexing/*.hpp
+  ${CMAKE_CURRENT_LIST_DIR}/spatial_partioning/*.cpp
+  ${CMAKE_CURRENT_LIST_DIR}/spatial_partioning/*.hpp
 )
 
 find_package(Eigen3 REQUIRED NO_MODULE)
