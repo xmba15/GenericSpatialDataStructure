@@ -1,19 +1,26 @@
+include(googletest)
+fetch_googletest(
+    ${PROJECT_SOURCE_DIR}/cmake
+    ${PROJECT_BINARY_DIR}/googletest
+)
+
 add_executable(
-  unit_tests
+  ${PROJECT_TARGET_LIB_NAME}/unit_tests
   TestQuadtree.cpp
+  TestSpaceFillingCurve.cpp
 )
 
 target_link_libraries(
-  unit_tests
+  ${PROJECT_TARGET_LIB_NAME}/unit_tests
   PUBLIC
-  spatial_data_structure
+    ${PROJECT_TARGET_LIB_NAME}
   PRIVATE
-  gtest_main
+    gtest_main
 )
 
 add_test(
   NAME
-  unit_tests
+    ${PROJECT_TARGET_LIB_NAME}/unit_tests
   COMMAND
-  $<TARGET_FILE:unit_tests>
+    $<TARGET_FILE:${PROJECT_TARGET_LIB_NAME}/unit_tests>
 )
