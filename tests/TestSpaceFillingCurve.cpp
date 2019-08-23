@@ -13,7 +13,8 @@
 
 #include "gtest/gtest.h"
 #include <ctime>
-#include <spatial_data_structure/SpaceFillingCurve.hpp>
+#include <spatial_indexing/BitTwiddling.hpp>
+#include <spatial_indexing/SpaceFillingCurve.hpp>
 
 class TestSpaceFillingCurve : public ::testing::Test
 {
@@ -38,7 +39,7 @@ TEST_F(TestSpaceFillingCurve, TestBinaryRepresentation)
 {
     {
         uint32_t n = 1785;
-        std::string binaryForm32bit = robotics::bin(n);
+        // std::string binaryForm32bit = robotics::bin(n);
         std::string expectedBinaryForm32bit = "00000000000000000000011011111001";
 
         EXPECT_EQ(binaryForm32bit, expectedBinaryForm32bit);
@@ -46,7 +47,7 @@ TEST_F(TestSpaceFillingCurve, TestBinaryRepresentation)
 
     {
         uint64_t n = 124544;
-        std::string binaryForm64bit = robotics::bin(n);
+        // std::string binaryForm64bit = robotics::bin(n);
         std::string expectedBinaryForm64bit = "0000000000000000000000000000000000000000000000011110011010000000";
 
         EXPECT_EQ(binaryForm64bit, expectedBinaryForm64bit);

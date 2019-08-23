@@ -13,6 +13,7 @@
 
 #include <iostream>
 #include <spatial_indexing/SpaceFillingCurve.hpp>
+#include <spatial_indexing/BitTwiddling.hpp>
 
 int main(int argc, char* argv[])
 {
