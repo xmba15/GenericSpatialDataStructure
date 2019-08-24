@@ -7,6 +7,7 @@ fetch_googletest(
 add_executable(
   ${PROJECT_TARGET_LIB_NAME}_unit_tests
   TestQuadtree.cpp
+  TestOctree.cpp
   TestSpaceFillingCurve.cpp
 )
 

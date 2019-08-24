@@ -1,7 +1,7 @@
 /**
- * @file    TestQuadtree.cpp
+ * @file    TestOctree.cpp
  *
- * @brief   Test Basic Funtion of Quadtree
+ * @brief   Test Basic Funtion of Octree
  *
  * @author  btran
  *
@@ -18,25 +18,25 @@
 #include <iomanip>
 #include <random>
 
-#include <spatial_partioning/Quadtree.hpp>
+#include <spatial_partioning/Octree.hpp>
 
 namespace testing
 {
 template <typename DATA_TYPE>
-void EXPECT_POINT_DOUBLE_EQ(const typename algo::Quadtree<DATA_TYPE>::PointType& p1,
-                            const typename algo::Quadtree<DATA_TYPE>::PointType& p2)
+void EXPECT_POINT_DOUBLE_EQ(const typename algo::Octree<DATA_TYPE>::PointType& p1,
+                            const typename algo::Octree<DATA_TYPE>::PointType& p2)
 {
-    for (size_t i = 0; i < 2; ++i) {
+    for (size_t i = 0; i < 3; ++i) {
         EXPECT_DOUBLE_EQ(p1[i], p2[i]);
     }
 }
 
 }  // namespace testing
 
-class TestQuadtree : public ::testing::Test
+class TestOctree : public ::testing::Test
 {
  protected:
-    using Quadtree = algo::Quadtree<double>;
+    using Octree = algo::Octree<double>;
 
     void SetUp() override
     {
@@ -54,31 +54,31 @@ class TestQuadtree : public ::testing::Test
     time_t start_time_;
 };
 
-TEST_F(TestQuadtree, TestInitialization)
+TEST_F(TestOctree, TestInitialization)
 {
-    Quadtree::VecPointType points{{30, 57}, {15, 6},  {68, 70}, {-1, 5},      {10, 67},
-                                  {45, 9},  {100, 6}, {20, 45}, {-200, -200}, {200, 200}};
-    Quadtree quadtree(points);
+    Octree::VecPointType points{{30, 57, 45}, {15, 6, -89},    {68, 70, 12.3}, {-1, 5, 2},        {10, 67, 399.2},
+                                {45, 9, 33},  {100, 6, 212.2}, {20, 45, 23.2}, {-200, -200, -11}, {200, 200, 234}};
+    Octree octree(points);
 
     {
-        Quadtree::PointType query({58.2, 70.2});
-        uint32_t neighborIdx = quadtree.findNeighbor(query);
-        Quadtree::PointType neighbor = points[neighborIdx];
-        Quadtree::PointType expectedNeighbor{68, 70};
+        Octree::PointType query({68.2, 70, 12.1});
+        uint32_t neighborIdx = octree.findNeighbor(query);
+        Octree::PointType neighbor = points[neighborIdx];
+        Octree::PointType expectedNeighbor{68, 70, 12.3};
 
         testing::EXPECT_POINT_DOUBLE_EQ<double>(neighbor, expectedNeighbor);
     }
 }
 
-TEST_F(TestQuadtree, TestKNN)
+TEST_F(TestOctree, TestKNN)
 {
     const double LOWER_BOUND = -500;
     const double UPPER_BOUND = 500;
     const int NUM_POINTS = 400;
     const int NUM_POINTS_TO_CHECK = 100;
 
-    Quadtree::VecPointType points;
-    Quadtree::VecPointType pointsToCheck;
+    Octree::VecPointType points;
+    Octree::VecPointType pointsToCheck;
     points.reserve(NUM_POINTS);
     pointsToCheck.reserve(NUM_POINTS_TO_CHECK);
 
@@ -90,29 +90,31 @@ TEST_F(TestQuadtree, TestKNN)
     for (size_t i = 0; i < NUM_POINTS; ++i) {
         double x = unif(re);
         double y = unif(re);
-        points.emplace_back(Quadtree::PointType{x, y});
+        double z = unif(re);
+        points.emplace_back(Octree::PointType{x, y, z});
     }
 
     for (size_t i = 0; i < NUM_POINTS_TO_CHECK; ++i) {
         double x = unif(re);
         double y = unif(re);
-        pointsToCheck.emplace_back(Quadtree::PointType{x, y});
+        double z = unif(re);
+        pointsToCheck.emplace_back(Octree::PointType{x, y, z});
     }
 
-    const Quadtree quadtree(points);
+    const Octree octree(points);
 
     {
-        for (const Quadtree::PointType& pointToCheck : pointsToCheck) {
+        for (const Octree::PointType& pointToCheck : pointsToCheck) {
             auto tempPV(points);
 
             std::sort(tempPV.begin(), tempPV.end(),
-                      [pointToCheck](const Quadtree::PointType& p1, const Quadtree::PointType& p2) {
+                      [pointToCheck](const Octree::PointType& p1, const Octree::PointType& p2) {
                           return (p1 - pointToCheck).norm() < (p2 - pointToCheck).norm();
                       });
 
-            const uint32_t neighborIdx = quadtree.findNeighbor(pointToCheck);
-            const Quadtree::PointType& neighbor = points[neighborIdx];
-            const Quadtree::PointType& expectedNeighbor = tempPV.front();
+            const uint32_t neighborIdx = octree.findNeighbor(pointToCheck);
+            const Octree::PointType& neighbor = points[neighborIdx];
+            const Octree::PointType& expectedNeighbor = tempPV.front();
 
             testing::EXPECT_POINT_DOUBLE_EQ<double>(neighbor, expectedNeighbor);
         }
@@ -121,23 +123,23 @@ TEST_F(TestQuadtree, TestKNN)
     {
         const int Ks[] = {1, 3, 12, 300, 450};
 
-        for (const Quadtree::PointType& pointToCheck : pointsToCheck) {
+        for (const Octree::PointType& pointToCheck : pointsToCheck) {
             auto tempPV(points);
 
             std::sort(tempPV.begin(), tempPV.end(),
-                      [pointToCheck](const Quadtree::PointType& p1, const Quadtree::PointType& p2) {
+                      [pointToCheck](const Octree::PointType& p1, const Octree::PointType& p2) {
                           return (p1 - pointToCheck).norm() < (p2 - pointToCheck).norm();
                       });
 
             for (const int K : Ks) {
                 const int kAlpha = K > NUM_POINTS ? NUM_POINTS : K;
 
-                const Quadtree::VecPointType expectedKnnPoints(tempPV.begin(), tempPV.begin() + kAlpha);
+                const Octree::VecPointType expectedKnnPoints(tempPV.begin(), tempPV.begin() + kAlpha);
 
-                std::vector<uint32_t> knnIndices = quadtree.knn(pointToCheck, K);
+                std::vector<uint32_t> knnIndices = octree.knn(pointToCheck, K);
                 ASSERT_EQ(knnIndices.size(), kAlpha);
 
-                Quadtree::VecPointType knnPoints;
+                Octree::VecPointType knnPoints;
                 knnPoints.reserve(kAlpha);
 
                 std::transform(knnIndices.begin(), knnIndices.end(), std::back_inserter(knnPoints),

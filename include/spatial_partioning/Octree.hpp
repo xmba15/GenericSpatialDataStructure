@@ -15,10 +15,12 @@
 
 #include <Eigen/Eigen>
 #include <algorithm>
+#include <functional>
 #include <limits>
+#include <numeric>
+#include <queue>
+#include <utility>
 #include <vector>
-
-#include <iostream>
 
 #ifdef WITH_DEBUG
 #define ENABLE_DEBUG 1
@@ -47,6 +49,7 @@ template <typename DATA_TYPE, class Container = Eigen::Matrix<DATA_TYPE, 3, 1>> 
 
     bool insideOctreeSpace(const PointType& query) const;
     uint32_t findNeighbor(const PointType& query, DATA_TYPE minDistance = -1) const;
+    std::vector<uint32_t> knn(const PointType& query, uint32_t k, DATA_TYPE minDistance = -1) const;
 
  private:
     struct Octant {
@@ -84,6 +87,7 @@ template <typename DATA_TYPE, class Container = Eigen::Matrix<DATA_TYPE, 3, 1>> 
                                           const PointType& offsetMaxPoint) const;
 
     uint32_t findNeighbor(const PointType& query, DATA_TYPE minDistance, const Octant* octant) const;
+    std::vector<uint32_t> knn(const PointType& query, uint32_t k, DATA_TYPE minDistance, const Octant* octant) const;
 
     std::stringstream traversal(const Octant* octant) const;
 
@@ -388,6 +392,87 @@ uint32_t Octree<DATA_TYPE, Container>::findNeighbor(const PointType& query, DATA
     }
 
     return resultIdx;
+}
+
+template <typename DATA_TYPE, class Container>
+std::vector<uint32_t> Octree<DATA_TYPE, Container>::knn(const PointType& query, uint32_t k, DATA_TYPE minDistance) const
+{
+    return this->knn(query, k, minDistance, this->_root);
+}
+
+template <typename DATA_TYPE, class Container>
+std::vector<uint32_t> Octree<DATA_TYPE, Container>::knn(const PointType& query, uint32_t k, DATA_TYPE minDistance,
+                                                        const Octant* octant) const
+{
+    std::vector<uint32_t> resultIndices;
+    if (k >= this->_points.size()) {
+        resultIndices.resize(this->_points.size());
+        std::iota(resultIndices.begin(), resultIndices.end(), 0);
+        std::sort(resultIndices.begin(), resultIndices.end(), [&query, this](const uint32_t idx1, const uint32_t idx2) {
+            return (this->_points[idx1] - query).norm() < (this->_points[idx2] - query).norm();
+        });
+
+        return resultIndices;
+    }
+
+    DATA_TYPE maxDistance = std::numeric_limits<DATA_TYPE>::max();
+    std::vector<const Octant*, Eigen::aligned_allocator<const Octant*>> octantPtrs;
+
+    //! DistanceIndex -> (distance from point P_i to query point, index of P_i in this->_points)
+    using DistanceIndex = std::pair<DATA_TYPE, uint32_t>;
+
+    std::priority_queue<DistanceIndex, std::vector<DistanceIndex>, std::less<DistanceIndex>> maxHeap;
+
+    octantPtrs.emplace_back(octant);
+    while (!octantPtrs.empty()) {
+        const Octant* curOctant = octantPtrs.back();
+        octantPtrs.pop_back();
+
+        if (!this->overlaps(query, maxDistance, curOctant)) {
+            continue;
+        }
+
+        if (curOctant->isLeaf) {
+            uint32_t idx = curOctant->startIdx;
+
+            for (uint32_t i = 0; i < curOctant->numPoints; ++i) {
+                const PointType& curPoint = this->_points[idx];
+                const DATA_TYPE delta = (query - curPoint).norm();
+
+                if (delta > minDistance) {
+                    maxHeap.emplace(std::make_pair(delta, idx));
+                }
+
+                idx = this->_successors[idx];
+            }
+        }
+
+        if (maxHeap.size() > k) {
+            while (maxHeap.size() > k) {
+                maxHeap.pop();
+            }
+        }
+
+        if (maxHeap.size() == k) {
+            maxDistance = maxHeap.top().first;
+        }
+
+        for (size_t i = 0; i < 8; ++i) {
+            if (curOctant->child[i] != 0) {
+                octantPtrs.emplace_back(curOctant->child[i]);
+            }
+        }
+    }
+
+    resultIndices.reserve(maxHeap.size());
+    while (!maxHeap.empty()) {
+        resultIndices.emplace_back(maxHeap.top().second);
+        maxHeap.pop();
+    }
+
+    std::reverse(resultIndices.begin(), resultIndices.end());
+
+    return resultIndices;
 }
 
 template <typename DATA_TYPE, class Container>
