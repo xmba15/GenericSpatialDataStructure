@@ -13,7 +13,7 @@
 
 #include "gtest/gtest.h"
 #include <ctime>
-#include <spatial_data_structure/Quadtree.hpp>
+#include <spatial_partioning/Quadtree.hpp>
 
 class TestQuadtree : public ::testing::Test
 {

@@ -5,13 +5,13 @@ fetch_googletest(
 )
 
 add_executable(
-  ${PROJECT_TARGET_LIB_NAME}/unit_tests
+  ${PROJECT_TARGET_LIB_NAME}_unit_tests
   TestQuadtree.cpp
   TestSpaceFillingCurve.cpp
 )
 
 target_link_libraries(
-  ${PROJECT_TARGET_LIB_NAME}/unit_tests
+  ${PROJECT_TARGET_LIB_NAME}_unit_tests
   PUBLIC
     ${PROJECT_TARGET_LIB_NAME}
   PRIVATE
@@ -20,7 +20,7 @@ target_link_libraries(
 
 add_test(
   NAME
-    ${PROJECT_TARGET_LIB_NAME}/unit_tests
+    ${PROJECT_TARGET_LIB_NAME}_unit_tests
   COMMAND
-    $<TARGET_FILE:${PROJECT_TARGET_LIB_NAME}/unit_tests>
+    $<TARGET_FILE:${PROJECT_TARGET_LIB_NAME}_unit_tests>
 )
