@@ -48,7 +48,7 @@ class QuadOctreeBase
 
     virtual std::stringstream traversal() const;
 
-    virtual bool insideQuadOctreeBaseSpace(const PointType& query) const;
+    virtual bool insideSpace(const PointType& query) const;
     virtual uint32_t findNeighbor(const PointType& query, DATA_TYPE minDistance = -1) const;
     virtual std::vector<uint32_t> knn(const PointType& query, uint32_t k, DATA_TYPE minDistance = -1) const;
 
@@ -135,7 +135,7 @@ QuadOctreeBase<DATA_TYPE, POINT_DIMENSION, PointContainer>::~QuadOctreeBase()
 }
 
 template <typename DATA_TYPE, size_t POINT_DIMENSION, class PointContainer>
-bool QuadOctreeBase<DATA_TYPE, POINT_DIMENSION, PointContainer>::insideQuadOctreeBaseSpace(const PointType& query) const
+bool QuadOctreeBase<DATA_TYPE, POINT_DIMENSION, PointContainer>::insideSpace(const PointType& query) const
 {
     return this->inside(query, this->_root);
 }

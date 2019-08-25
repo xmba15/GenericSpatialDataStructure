@@ -28,10 +28,9 @@ int main(int argc, char* argv[])
 
         Octree octree(points);
 
-        // Octree::PointType query({-20, -34.3, -1000});
         Octree::PointType query({12.2, 34.5, 56.8});
 
-        bool result = octree.insideOctreeSpace(query);
+        bool result = octree.insideSpace(query);
 
         int nnIdx = octree.findNeighbor(query);
         std::cout << points[nnIdx] << "\n";
@@ -119,7 +118,6 @@ int main(int argc, char* argv[])
                     std::cout << (nn - tempPV.front()) << "\n";
                 }
             }
-
         }
     }
 
