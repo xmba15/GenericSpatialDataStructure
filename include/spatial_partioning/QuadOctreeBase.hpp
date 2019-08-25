@@ -40,19 +40,19 @@ class QuadOctreeBase
 
     static constexpr size_t NUM_CHILD = std::pow(2, POINT_DIMENSION);
 
-    explicit QuadOctreeBase(const VecPointType& points, uint8_t maxLevel, uint32_t maxNumPoints,
-                            const PointType& offsetMinPoint, const PointType& offsetMaxPoint,
-                            const std::string& nodeName = "QuadOctreeBaseNode");
+    QuadOctreeBase(const VecPointType& points, uint8_t maxLevel, uint32_t maxNumPoints, const PointType& offsetMinPoint,
+                   const PointType& offsetMaxPoint, const std::string& nodeName = "QuadOctreeBaseNode");
 
     ~QuadOctreeBase();
 
-    virtual std::stringstream traversal() const;
+    const VecPointType& points() const;
 
+    virtual std::stringstream traversal() const;
     virtual bool insideSpace(const PointType& query) const;
     virtual uint32_t findNeighbor(const PointType& query, DATA_TYPE minDistance = -1) const;
     virtual std::vector<uint32_t> knn(const PointType& query, uint32_t k, DATA_TYPE minDistance = -1) const;
 
- protected:
+ private:
     struct QuadOctreeBaseNode {
         QuadOctreeBaseNode();
         ~QuadOctreeBaseNode();
@@ -132,6 +132,13 @@ template <typename DATA_TYPE, size_t POINT_DIMENSION, class PointContainer>
 QuadOctreeBase<DATA_TYPE, POINT_DIMENSION, PointContainer>::~QuadOctreeBase()
 {
     delete _root;
+}
+
+template <typename DATA_TYPE, size_t POINT_DIMENSION, class PointContainer>
+const typename QuadOctreeBase<DATA_TYPE, POINT_DIMENSION, PointContainer>::VecPointType&
+QuadOctreeBase<DATA_TYPE, POINT_DIMENSION, PointContainer>::points() const
+{
+    return this->_points;
 }
 
 template <typename DATA_TYPE, size_t POINT_DIMENSION, class PointContainer>
@@ -337,7 +344,7 @@ std::stringstream QuadOctreeBase<DATA_TYPE, POINT_DIMENSION, PointContainer>::tr
     if (quadOctreeBaseNode->isLeaf) {
         uint32_t idx = quadOctreeBaseNode->startIdx;
         ss << "----------------------------\n";
-        ss << _nodeName << ": "
+        ss << this->_nodeName << ": "
            << "\nlevel: " << int(quadOctreeBaseNode->level) << "\nradius: " << quadOctreeBaseNode->radius << "\n";
 
         for (size_t i = 0; i < POINT_DIMENSION; ++i) {
