@@ -29,7 +29,7 @@ int main(int argc, char* argv[])
 
         Quadtree::PointType query({-20, -34.3});
 
-        bool result = quadtree.insideQuadtreeSpace(query);
+        bool result = quadtree.insideSpace(query);
 
         std::cout << quadtree.traversal().str() << "\n";
 
