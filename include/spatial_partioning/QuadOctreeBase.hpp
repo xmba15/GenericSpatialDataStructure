@@ -26,6 +26,10 @@
 
 namespace algo
 {
+/**
+ *  @brief Base Class for both Quadtree and Octree
+ *
+ */
 template <typename DATA_TYPE, size_t POINT_DIMENSION,
           class PointContainer = Eigen::Matrix<DATA_TYPE, POINT_DIMENSION, 1>>
 class QuadOctreeBase
@@ -36,75 +40,239 @@ class QuadOctreeBase
 
     using VecPointType = std::vector<PointType, Eigen::aligned_allocator<PointType>>;
 
+    //! array type to store point coordinates
     using PointCoordinates = std::array<DATA_TYPE, POINT_DIMENSION>;
 
+    //! constant number of children stored in each node
     static constexpr size_t NUM_CHILD = std::pow(2, POINT_DIMENSION);
 
+    /**
+     *  @brief constructor to initialize member variables and also contruct the tree
+     *
+     *  @param points points to be stored in the trees
+     *  @param maxLevel max level of tree nodes
+     *  @param maxNumPoints max number of points to be stored in each node
+     *  @param offsetMinPoint offset min point to control the boundary of the tree space
+     *  @param offsetMaxPoint offset max point to control the boundary of the tree space
+     */
     QuadOctreeBase(const VecPointType& points, uint8_t maxLevel, uint32_t maxNumPoints, const PointType& offsetMinPoint,
                    const PointType& offsetMaxPoint, const std::string& nodeName = "QuadOctreeBaseNode");
 
+    /**
+     *  @brief destructor to delete the root node
+     *
+     */
     ~QuadOctreeBase();
 
+    /**
+     *  @brief constant getter of the points member variable
+     *
+     */
     const VecPointType& points() const;
 
+    /**
+     *  @brief inorder traversal of the tree from root node
+     *  @return coordinates about points stored in each node and center point of the node itself
+     */
     virtual std::stringstream traversal() const;
+
+    /**
+     *  @brief check if a point is in the tree's boundary space
+     *
+     *  @param query the query point
+     *  @return true if the point lies in the boudary space; false the otherwise
+     */
     virtual bool insideSpace(const PointType& query) const;
+
+    /**
+     *  @brief find one neighbor point of a point (knn with k=1)
+     *
+     *  @param query the query point
+     *  @param minDistance min distance from the query point to the neighbor point
+     *  @return index of the neighbor point
+     */
     virtual uint32_t findNeighbor(const PointType& query, DATA_TYPE minDistance = -1) const;
+
+    /**
+     *  @brief find k neighbors of a point
+     *
+     *  @param query the query point
+     *  @param k number of neighbors to find
+     *  @param minDistance min distance from the query point to the neighbor point
+     *  @return vector of indices of the neighbors
+     */
     virtual std::vector<uint32_t> knn(const PointType& query, uint32_t k, DATA_TYPE minDistance = -1) const;
 
  private:
+    /**
+     *  @brief struct of each node stored in the tree
+     *
+     */
     struct QuadOctreeBaseNode {
+        /**
+         *  @brief constructor with default value
+         *
+         */
         QuadOctreeBaseNode();
+
+        /**
+         *  @brief destructor to delete pointers to child nodes
+         *
+         */
         ~QuadOctreeBaseNode();
 
+        //! flag to check if the current node is leaf or not
         bool isLeaf;
+
+        //! coordinate values of the center point of the node space
         PointCoordinates coordinates;
+
+        //! "square" radius of the node space
         DATA_TYPE radius;
 
-        uint32_t startIdx, endIdx;
+        //! start index of the points stored in this node
+        uint32_t startIdx;
+
+        //! end index of the points stored in this node
+        uint32_t endIdx;
+
+        //! number of points stored in this node
         uint32_t numPoints;
+
+        //! level of this node
         uint8_t level;
 
+        //! pointers to child nodes
         QuadOctreeBaseNode* child[NUM_CHILD];
     };
 
+    //! struct to represent the bounding box with coordinates of the center points and "square" radius
     struct BoundingBox {
+        //! coordinates of the center point
         PointCoordinates coordinates;
+
+        //! "square" radius
         DATA_TYPE radius;
     };
 
+    /**
+     *  @brief create a new tree node
+     *
+     *  @param coordinates coordinates of the center point of the node
+     *  @param radius "square" radius
+     *  @param startIdx start index of the points stored in this node
+     *  @param endIdx end index of the points stored in this node
+     *  @param numPoints number of points stored in this node
+     *  @param level level of this node
+     *  @return pointer to the new generated node
+     */
     QuadOctreeBaseNode* createQuadOctreeBaseNode(const PointCoordinates& coordinates, DATA_TYPE radius,
                                                  uint32_t startIdx, uint32_t endIdx, uint32_t numPoints, uint8_t level);
 
+    /**
+     *  @brief block copy constructor
+     *
+     */
     QuadOctreeBase(const QuadOctreeBase&);
+
+    /**
+     *  @brief block assignment operator
+     *
+     */
     QuadOctreeBase& operator=(const QuadOctreeBase&);
 
+    /**
+     *  @brief check if a circle (quadtree case) or a ball (octree case) S(query, r) overlaps with the node space
+     *
+     *  @param query the query point
+     *  @param radius the radius of the circle (or ball)
+     *  @param quadOctreeBaseNode pointer to constant node
+     *  @return true if overlapped; false the otherwise
+     */
     bool overlaps(const PointType& query, DATA_TYPE radius, const QuadOctreeBaseNode* quadOctreeBaseNode) const;
 
+    /**
+     *  @brief check if a circle (quadtree case) or a ball (octree case) S(query, r) is inside the node space
+     *
+     *  @param query the query point
+     *  @param radius the radius of the circle (or ball)
+     *  @param quadOctreeBaseNode pointer to constant node
+     *  @return true if inside; false the otherwise
+     */
     bool inside(const PointType& query, DATA_TYPE radius, const QuadOctreeBaseNode* quadOctreeBaseNode) const;
+
+    /**
+     *  @brief check if a point lies inside the node space
+     *
+     *  @param query the query point
+     *  @param radius the radius of the circle (or ball)
+     *  @param quadOctreeBaseNode pointer to constant node
+     *  @return true if inside; false the otherwise
+     */
     bool inside(const PointType& query, const QuadOctreeBaseNode* quadOctreeBaseNode) const;
 
+    /**
+     *  @brief estimate the boundary that cover all the input points
+     *
+     *  @param points input vector of points
+     *  @param offsetMinPoint offset min point to control the size of the boundary
+     *  @param offsetMaxPoint offset max point to control the size of the boundary
+     *  @return bounding box of the boundary space
+     */
     const BoundingBox estimateBounds(const VecPointType& points, const PointType& offsetMinPoint,
                                      const PointType& offsetMaxPoint) const;
 
+    /**
+     *  @brief find one neighbor point of a point (knn with k=1) starting from the target node
+     *
+     *  @param query the query point
+     *  @param minDistance min distance from the query point to the neighbor point
+     *  @param quadOctreeBaseNode pointer to constant node
+     *  @return index of the neighbor point
+     */
     uint32_t findNeighbor(const PointType& query, DATA_TYPE minDistance,
                           const QuadOctreeBaseNode* quadOctreeBaseNode) const;
+
+    /**
+     *  @brief find k neighbors of a point starting from the target node
+     *
+     *  @param query the query point
+     *  @param k number of neighbors to find
+     *  @param minDistance min distance from the query point to the neighbor point
+     *  @param quadOctreeBaseNode pointer to constant node
+     *  @return vector of indices of the neighbors
+     */
     std::vector<uint32_t> knn(const PointType& query, uint32_t k, DATA_TYPE minDistance,
                               const QuadOctreeBaseNode* quadOctreeBaseNode) const;
 
+    /**
+     *  @brief inorder traversal of the tree starting from the target node
+     *  @param quadOctreeBaseNode pointer to constant node
+     *  @return coordinates about points stored in each node and center point of the node itself
+     */
     std::stringstream traversal(const QuadOctreeBaseNode* quadOctreeBaseNode) const;
 
  protected:
+    //! vector of points held inside the tree
     VecPointType _points;
 
+    //! pointer to root node
     QuadOctreeBaseNode* _root;
 
+    //! vector to store the successive index of the point that follows the index of the current point.
+    //! Supposed we have the vector of n points (p0,p1,...,p_(n-1)) with the index (i0=0;i1=1;...;i(n-1)=n-1).
+    //! Then _successors[i_(j)] = i_(j+1) for j = [0,(n-1)].
+    //! When a new permutation of n points is needed; we can keep the vector of points intact; and modify
+    //! this successors vector
     std::vector<uint32_t> _successors;
 
+    //! max level of a node
     uint8_t _maxLevel;
 
+    //! max number of points stored in a node
     uint32_t _maxNumPoints;
 
+    //! the name of node struct (quadrant for quadtree, octant for octree)
     std::string _nodeName;
 };
 

@@ -25,6 +25,10 @@
 
 namespace algo
 {
+/**
+ *  @brief class inherited from QuadOctreeBase to represent a Quadtree
+ *
+ */
 template <typename DATA_TYPE, class PointContainer = Eigen::Matrix<DATA_TYPE, 2, 1>>
 class Quadtree : public QuadOctreeBase<DATA_TYPE, 2, PointContainer>
 {
