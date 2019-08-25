@@ -22,17 +22,19 @@
 #include <utility>
 #include <vector>
 
+#include <iostream>
+
 #ifdef WITH_DEBUG
 #define ENABLE_DEBUG 1
 #endif
 
 namespace algo
 {
-template <typename DATA_TYPE, class Container = Eigen::Matrix<DATA_TYPE, 2, 1>> class Quadtree
+template <typename DATA_TYPE, class PointContainer = Eigen::Matrix<DATA_TYPE, 2, 1>> class Quadtree
 {
  public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
-    using PointType = Container;
+    using PointType = PointContainer;
     using VecPointType = std::vector<PointType, Eigen::aligned_allocator<PointType>>;
 
     explicit Quadtree(const VecPointType& points, uint8_t maxLevel = 5, uint32_t maxNumPoints = 1,
@@ -102,9 +104,9 @@ template <typename DATA_TYPE, class Container = Eigen::Matrix<DATA_TYPE, 2, 1>> 
     uint32_t _maxNumPoints;
 };
 
-template <typename DATA_TYPE, class Container>
-Quadtree<DATA_TYPE, Container>::Quadtree(const VecPointType& points, uint8_t maxLevel, uint32_t maxNumPoints,
-                                         const PointType& offsetMinPoint, const PointType& offsetMaxPoint)
+template <typename DATA_TYPE, class PointContainer>
+Quadtree<DATA_TYPE, PointContainer>::Quadtree(const VecPointType& points, uint8_t maxLevel, uint32_t maxNumPoints,
+                                              const PointType& offsetMinPoint, const PointType& offsetMaxPoint)
     : _points(points), _maxLevel(maxLevel), _maxNumPoints(maxNumPoints)
 {
     uint32_t N = this->_points.size();
@@ -119,21 +121,21 @@ Quadtree<DATA_TYPE, Container>::Quadtree(const VecPointType& points, uint8_t max
     this->_root = this->createQuadrant(bbox.center.x(), bbox.center.y(), bbox.radius, 0, N - 1, N, 0);
 }
 
-template <typename DATA_TYPE, class Container> Quadtree<DATA_TYPE, Container>::~Quadtree()
+template <typename DATA_TYPE, class PointContainer> Quadtree<DATA_TYPE, PointContainer>::~Quadtree()
 {
     delete _root;
 }
 
-template <typename DATA_TYPE, class Container>
-bool Quadtree<DATA_TYPE, Container>::insideQuadtreeSpace(const PointType& query) const
+template <typename DATA_TYPE, class PointContainer>
+bool Quadtree<DATA_TYPE, PointContainer>::insideQuadtreeSpace(const PointType& query) const
 {
     return this->inside(query, this->_root);
 }
 
-template <typename DATA_TYPE, class Container>
-typename Quadtree<DATA_TYPE, Container>::Quadrant*
-Quadtree<DATA_TYPE, Container>::createQuadrant(DATA_TYPE x, DATA_TYPE y, DATA_TYPE radius, uint32_t startIdx,
-                                               uint32_t endIdx, uint32_t numPoints, uint8_t level)
+template <typename DATA_TYPE, class PointContainer>
+typename Quadtree<DATA_TYPE, PointContainer>::Quadrant*
+Quadtree<DATA_TYPE, PointContainer>::createQuadrant(DATA_TYPE x, DATA_TYPE y, DATA_TYPE radius, uint32_t startIdx,
+                                                    uint32_t endIdx, uint32_t numPoints, uint8_t level)
 {
     Quadrant* quadrant = new Quadrant;
     quadrant->isLeaf = true;
@@ -209,8 +211,9 @@ Quadtree<DATA_TYPE, Container>::createQuadrant(DATA_TYPE x, DATA_TYPE y, DATA_TY
     return quadrant;
 }
 
-template <typename DATA_TYPE, class Container>
-bool Quadtree<DATA_TYPE, Container>::overlaps(const PointType& query, DATA_TYPE radius, const Quadrant* quadrant) const
+template <typename DATA_TYPE, class PointContainer>
+bool Quadtree<DATA_TYPE, PointContainer>::overlaps(const PointType& query, DATA_TYPE radius,
+                                                   const Quadrant* quadrant) const
 {
     DATA_TYPE deltaX = query.x() - quadrant->x;
     DATA_TYPE deltaY = query.y() - quadrant->y;
@@ -234,8 +237,9 @@ bool Quadtree<DATA_TYPE, Container>::overlaps(const PointType& query, DATA_TYPE 
     return (std::sqrt(std::pow(deltaX, 2) + std::pow(deltaY, 2)) < radius);
 }
 
-template <typename DATA_TYPE, class Container>
-bool Quadtree<DATA_TYPE, Container>::inside(const PointType& query, DATA_TYPE radius, const Quadrant* quadrant) const
+template <typename DATA_TYPE, class PointContainer>
+bool Quadtree<DATA_TYPE, PointContainer>::inside(const PointType& query, DATA_TYPE radius,
+                                                 const Quadrant* quadrant) const
 {
     DATA_TYPE deltaX = query.x() - quadrant->x;
     DATA_TYPE deltaY = query.y() - quadrant->y;
@@ -250,8 +254,8 @@ bool Quadtree<DATA_TYPE, Container>::inside(const PointType& query, DATA_TYPE ra
     return true;
 }
 
-template <typename DATA_TYPE, class Container>
-bool Quadtree<DATA_TYPE, Container>::inside(const PointType& query, const Quadrant* quadrant) const
+template <typename DATA_TYPE, class PointContainer>
+bool Quadtree<DATA_TYPE, PointContainer>::inside(const PointType& query, const Quadrant* quadrant) const
 {
     DATA_TYPE deltaX = query.x() - quadrant->x;
     DATA_TYPE deltaY = query.y() - quadrant->y;
@@ -266,10 +270,11 @@ bool Quadtree<DATA_TYPE, Container>::inside(const PointType& query, const Quadra
     return true;
 }
 
-template <typename DATA_TYPE, class Container>
-const typename Quadtree<DATA_TYPE, Container>::BoundingBox
-Quadtree<DATA_TYPE, Container>::estimateQuadraticBounds(const VecPointType& points, const PointType& offsetMinPoint,
-                                                        const PointType& offsetMaxPoint) const
+template <typename DATA_TYPE, class PointContainer>
+const typename Quadtree<DATA_TYPE, PointContainer>::BoundingBox
+Quadtree<DATA_TYPE, PointContainer>::estimateQuadraticBounds(const VecPointType& points,
+                                                             const PointType& offsetMinPoint,
+                                                             const PointType& offsetMaxPoint) const
 {
     BoundingBox result;
     PointType boundMinPoint = offsetMinPoint;
@@ -290,16 +295,22 @@ Quadtree<DATA_TYPE, Container>::estimateQuadraticBounds(const VecPointType& poin
     result.center = boundMinPoint + deltaPoint * 0.5;
     result.radius = 0.5 * std::max(deltaPoint.x(), deltaPoint.y());
 
+    std::cout << "center point: "
+              << "\n";
+    std::cout << result.center << std::endl;
+    std::cout << "radius: " << result.radius << "\n";
+
     return result;
 }
 
-template <typename DATA_TYPE, class Container> std::stringstream Quadtree<DATA_TYPE, Container>::traversal() const
+template <typename DATA_TYPE, class PointContainer>
+std::stringstream Quadtree<DATA_TYPE, PointContainer>::traversal() const
 {
     return traversal(this->_root);
 }
 
-template <typename DATA_TYPE, class Container>
-std::stringstream Quadtree<DATA_TYPE, Container>::traversal(const Quadrant* quadrant) const
+template <typename DATA_TYPE, class PointContainer>
+std::stringstream Quadtree<DATA_TYPE, PointContainer>::traversal(const Quadrant* quadrant) const
 {
     std::stringstream ss;
 
@@ -329,15 +340,15 @@ std::stringstream Quadtree<DATA_TYPE, Container>::traversal(const Quadrant* quad
     return ss;
 }
 
-template <typename DATA_TYPE, class Container>
-uint32_t Quadtree<DATA_TYPE, Container>::findNeighbor(const PointType& query, DATA_TYPE minDistance) const
+template <typename DATA_TYPE, class PointContainer>
+uint32_t Quadtree<DATA_TYPE, PointContainer>::findNeighbor(const PointType& query, DATA_TYPE minDistance) const
 {
     return this->findNeighbor(query, minDistance, this->_root);
 }
 
-template <typename DATA_TYPE, class Container>
-uint32_t Quadtree<DATA_TYPE, Container>::findNeighbor(const PointType& query, DATA_TYPE minDistance,
-                                                      const Quadrant* quadrant) const
+template <typename DATA_TYPE, class PointContainer>
+uint32_t Quadtree<DATA_TYPE, PointContainer>::findNeighbor(const PointType& query, DATA_TYPE minDistance,
+                                                           const Quadrant* quadrant) const
 {
     uint32_t resultIdx = -1;
 
@@ -380,16 +391,16 @@ uint32_t Quadtree<DATA_TYPE, Container>::findNeighbor(const PointType& query, DA
     return resultIdx;
 }
 
-template <typename DATA_TYPE, class Container>
-std::vector<uint32_t> Quadtree<DATA_TYPE, Container>::knn(const PointType& query, uint32_t k,
-                                                          DATA_TYPE minDistance) const
+template <typename DATA_TYPE, class PointContainer>
+std::vector<uint32_t> Quadtree<DATA_TYPE, PointContainer>::knn(const PointType& query, uint32_t k,
+                                                               DATA_TYPE minDistance) const
 {
     return this->knn(query, k, minDistance, this->_root);
 }
 
-template <typename DATA_TYPE, class Container>
-std::vector<uint32_t> Quadtree<DATA_TYPE, Container>::knn(const PointType& query, uint32_t k, DATA_TYPE minDistance,
-                                                          const Quadrant* quadrant) const
+template <typename DATA_TYPE, class PointContainer>
+std::vector<uint32_t> Quadtree<DATA_TYPE, PointContainer>::knn(const PointType& query, uint32_t k,
+                                                               DATA_TYPE minDistance, const Quadrant* quadrant) const
 {
     std::vector<uint32_t> resultIndices;
 
@@ -463,14 +474,14 @@ std::vector<uint32_t> Quadtree<DATA_TYPE, Container>::knn(const PointType& query
     return resultIndices;
 }
 
-template <typename DATA_TYPE, class Container>
-Quadtree<DATA_TYPE, Container>::Quadrant::Quadrant()
+template <typename DATA_TYPE, class PointContainer>
+Quadtree<DATA_TYPE, PointContainer>::Quadrant::Quadrant()
     : isLeaf(true), x(0.0f), y(0.0f), radius(0.0f), startIdx(0), endIdx(0), numPoints(0)
 {
     memset(&child, 0, 4 * sizeof(Quadrant*));
 }
 
-template <typename DATA_TYPE, class Container> Quadtree<DATA_TYPE, Container>::Quadrant::~Quadrant()
+template <typename DATA_TYPE, class PointContainer> Quadtree<DATA_TYPE, PointContainer>::Quadrant::~Quadrant()
 {
     for (uint32_t i = 0; i < 4; ++i) {
         delete child[i];
