@@ -118,10 +118,8 @@ QuadOctreeBase<DATA_TYPE, POINT_DIMENSION, PointContainer>::QuadOctreeBase(const
 {
     const uint32_t N = this->_points.size();
 
-    this->_successors.reserve(N);
-    for (uint32_t i = 0; i < N; ++i) {
-        this->_successors.emplace_back(i + 1);
-    }
+    this->_successors.resize(N);
+    std::iota(this->_successors.begin(), this->_successors.end(), 1);
 
     const BoundingBox bbox = this->estimateBounds(this->_points, offsetMinPoint, offsetMaxPoint);
 
