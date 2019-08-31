@@ -644,10 +644,8 @@ std::vector<uint32_t> QuadOctreeBase<DATA_TYPE, POINT_DIMENSION, PointContainer>
             }
         }
 
-        if (maxHeap.size() > k) {
-            while (maxHeap.size() > k) {
-                maxHeap.pop();
-            }
+        while (maxHeap.size() > k) {
+            maxHeap.pop();
         }
 
         if (maxHeap.size() == k) {
