@@ -1,14 +1,24 @@
+include(matplotlibcpp)
+__fetch_matplotlibcpp(
+  "${PROJECT_SOURCE_DIR}/cmake"
+  "${PROJECT_BINARY_DIR}/${PROJECT_TARGET_LIB_NAME}_matplotlibcpp"
+)
+
 list(APPEND EXAMPLES
   "ExQuadtree"
   "ExOctree"
   "ExSpaceFillingCurve"
   "ExBitTwiddling"
+  "ExPCDIO"
 )
 
 include(example_utility)
 
+add_definitions(-DDATA_PATH="${PROJECT_SOURCE_DIR}/data")
+
 list(APPEND PUBLIC_LIBS
   ${PROJECT_TARGET_LIB_NAME}
+  matplotlib_cpp
 )
 
 list(APPEND PRIVATE_LIBS
