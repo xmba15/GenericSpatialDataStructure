@@ -60,3 +60,5 @@ F - represents float types
 - [happly](https://github.com/nmwsharp/happly)
 - [pcl segmentation](https://gitlab.com/taketwo/snc)
 - [Kanezaki-san Tutorial](https://staff.aist.go.jp/kanezaki.asako/pdf/SSII2016_AsakoKanezaki_tutorial.pdf)
+- [3D Machine Learning](https://github.com/timzhang642/3D-Machine-Learning)
+- [Kanezaki-san Tutorial](https://kanezaki.github.io/media/RobotSeminar20180531_AsakoKanezaki.pdf)

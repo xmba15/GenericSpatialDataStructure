@@ -20,9 +20,12 @@ target_compile_features(${LIBRARY_NAME}
 target_link_libraries(${LIBRARY_NAME}
   PUBLIC
     Eigen3::Eigen
+    liblzf
 )
 
-target_include_directories(${LIBRARY_NAME} PUBLIC
-  $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
-  $<INSTALL_INTERFACE:include>
+target_include_directories(${LIBRARY_NAME}
+  PUBLIC
+    $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
+    $<INSTALL_INTERFACE:include>
+    ${PROJECT_SOURCE_DIR}/third_party/liblzf
 )

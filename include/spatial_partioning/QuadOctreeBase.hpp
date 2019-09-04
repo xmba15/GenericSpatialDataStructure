@@ -103,6 +103,8 @@ class QuadOctreeBase
      */
     virtual std::vector<uint32_t> knn(const PointType& query, uint32_t k, DATA_TYPE minDistance = -1) const;
 
+    std::array<std::vector<DATA_TYPE>, POINT_DIMENSION> extractDataEachAxis(const VecPointType& vecPointType) const;
+
  private:
     /**
      *  @brief struct of each node stored in the tree
@@ -256,6 +258,7 @@ class QuadOctreeBase
     //! vector of points held inside the tree
     VecPointType _points;
 
+ private:
     //! pointer to root node
     QuadOctreeBaseNode* _root;
 
@@ -670,6 +673,23 @@ std::vector<uint32_t> QuadOctreeBase<DATA_TYPE, POINT_DIMENSION, PointContainer>
     std::reverse(resultIndices.begin(), resultIndices.end());
 
     return resultIndices;
+}
+
+template <typename DATA_TYPE, size_t POINT_DIMENSION, class Container>
+std::array<std::vector<DATA_TYPE>, POINT_DIMENSION>
+QuadOctreeBase<DATA_TYPE, POINT_DIMENSION, Container>::extractDataEachAxis(const VecPointType& vecPointType) const
+{
+    std::array<std::vector<DATA_TYPE>, POINT_DIMENSION> result;
+
+    for (size_t i = 0; i < POINT_DIMENSION; ++i) {
+        std::vector<DATA_TYPE> curV;
+        curV.reserve(vecPointType.size());
+        std::transform(vecPointType.begin(), vecPointType.end(), std::back_inserter(curV),
+                       [&i](const PointType& p) { return p[i]; });
+        result[i] = curV;
+    }
+
+    return result;
 }
 
 template <typename DATA_TYPE, size_t POINT_DIMENSION, class PointContainer>

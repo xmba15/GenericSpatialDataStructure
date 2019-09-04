@@ -38,3 +38,11 @@ if(BUILD_DOC)
     message(STATUS "Doxygen not found")
   endif(DOXYGEN_FOUND)
 endif(BUILD_DOC)
+
+option(WITH_VISUALIZATION "Option whether to build examples with visualization" OFF)
+if(WITH_VISUALIZATION)
+  target_compile_definitions(${PROJECT_TARGET_LIB_NAME}
+    PUBLIC
+    WITH_DEBUG
+  )
+endif(WITH_VISUALIZATION)
