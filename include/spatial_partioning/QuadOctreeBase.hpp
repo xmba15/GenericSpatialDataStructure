@@ -105,7 +105,12 @@ class QuadOctreeBase
 
     std::array<std::vector<DATA_TYPE>, POINT_DIMENSION> extractDataEachAxis(const VecPointType& vecPointType) const;
 
- private:
+    virtual void drawOctree(const std::function<void(const PointCoordinates&, const DATA_TYPE)>& func) const
+    {
+        this->drawOctree(this->_root, func);
+    }
+
+ protected:
     /**
      *  @brief struct of each node stored in the tree
      *
@@ -178,12 +183,6 @@ class QuadOctreeBase
     QuadOctreeBase(const QuadOctreeBase&);
 
     /**
-     *  @brief block assignment operator
-     *
-     */
-    QuadOctreeBase& operator=(const QuadOctreeBase&);
-
-    /**
      *  @brief check if a circle (quadtree case) or a ball (octree case) S(query, r) overlaps with the node space
      *
      *  @param query the query point
@@ -254,11 +253,13 @@ class QuadOctreeBase
      */
     std::stringstream traversal(const QuadOctreeBaseNode* quadOctreeBaseNode) const;
 
+    void drawOctree(const QuadOctreeBaseNode* quadOctreeBaseNode,
+                    const std::function<void(const PointCoordinates&, const DATA_TYPE)>& func) const;
+
  protected:
     //! vector of points held inside the tree
     VecPointType _points;
 
- private:
     //! pointer to root node
     QuadOctreeBaseNode* _root;
 
@@ -300,7 +301,7 @@ QuadOctreeBase<DATA_TYPE, POINT_DIMENSION, PointContainer>::QuadOctreeBase(const
 template <typename DATA_TYPE, size_t POINT_DIMENSION, class PointContainer>
 QuadOctreeBase<DATA_TYPE, POINT_DIMENSION, PointContainer>::~QuadOctreeBase()
 {
-    delete _root;
+    free(_root);
 }
 
 template <typename DATA_TYPE, size_t POINT_DIMENSION, class PointContainer>
@@ -540,6 +541,23 @@ std::stringstream QuadOctreeBase<DATA_TYPE, POINT_DIMENSION, PointContainer>::tr
 }
 
 template <typename DATA_TYPE, size_t POINT_DIMENSION, class PointContainer>
+void QuadOctreeBase<DATA_TYPE, POINT_DIMENSION, PointContainer>::drawOctree(
+    const QuadOctreeBaseNode* quadOctreeBaseNode,
+    const std::function<void(const PointCoordinates&, const DATA_TYPE)>& func) const
+{
+    if (quadOctreeBaseNode->isLeaf) {
+        func(quadOctreeBaseNode->coordinates, quadOctreeBaseNode->radius);
+        return;
+    }
+
+    for (size_t i = 0; i < NUM_CHILD; ++i) {
+        if (quadOctreeBaseNode->child[i] != 0) {
+            this->drawOctree(quadOctreeBaseNode->child[i], func);
+        }
+    }
+}
+
+template <typename DATA_TYPE, size_t POINT_DIMENSION, class PointContainer>
 uint32_t QuadOctreeBase<DATA_TYPE, POINT_DIMENSION, PointContainer>::findNeighbor(const PointType& query,
                                                                                   DATA_TYPE minDistance) const
 {
@@ -703,7 +721,7 @@ template <typename DATA_TYPE, size_t POINT_DIMENSION, class PointContainer>
 QuadOctreeBase<DATA_TYPE, POINT_DIMENSION, PointContainer>::QuadOctreeBaseNode::~QuadOctreeBaseNode()
 {
     for (uint32_t i = 0; i < NUM_CHILD; ++i) {
-        delete child[i];
+        free(child[i]);
     }
 }
 

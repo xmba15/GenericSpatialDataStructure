@@ -19,6 +19,8 @@ addons:
     packages:
       - cmake
       - g++-6
+      - freeglut3
+      - freeglut3-dev
 
 env:
   - MATRIX_EVAL="CC=gcc-6 && CXX=g++-6"

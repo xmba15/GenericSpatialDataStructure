@@ -45,11 +45,19 @@ class Octree : public QuadOctreeBase<DATA_TYPE, 3, PointContainer>
                                                                 std::numeric_limits<DATA_TYPE>::min()},
                     const std::string& nodeName = "Octant");
 
+    explicit Octree(uint8_t maxLevel = 5, uint32_t maxNumPoints = 1,
+                    const PointType& offsetMinPoint = PointType{std::numeric_limits<DATA_TYPE>::max(),
+                                                                std::numeric_limits<DATA_TYPE>::max(),
+                                                                std::numeric_limits<DATA_TYPE>::max()},
+                    const PointType& offsetMaxPoint = PointType{std::numeric_limits<DATA_TYPE>::min(),
+                                                                std::numeric_limits<DATA_TYPE>::min(),
+                                                                std::numeric_limits<DATA_TYPE>::min()},
+                    const std::string& nodeName = "Octant");
+
     ~Octree() = default;
 
  private:
     Octree(const Octree&);
-    Octree& operator=(const Octree&);
 };
 
 template <typename DATA_TYPE, class PointContainer>
@@ -58,6 +66,13 @@ Octree<DATA_TYPE, PointContainer>::Octree(const VecPointType& points, uint8_t ma
                                           const std::string& nodeName)
     : QuadOctreeBase<DATA_TYPE, 3, PointContainer>(points, maxLevel, maxNumPoints, offsetMinPoint, offsetMaxPoint,
                                                    nodeName)
+{
+}
+
+template <typename DATA_TYPE, class PointContainer>
+Octree<DATA_TYPE, PointContainer>::Octree(uint8_t maxLevel, uint32_t maxNumPoints, const PointType& offsetMinPoint,
+                                          const PointType& offsetMaxPoint, const std::string& nodeName)
+    : QuadOctreeBase<DATA_TYPE, 3, PointContainer>({}, maxLevel, maxNumPoints, offsetMinPoint, offsetMaxPoint, nodeName)
 {
 }
 

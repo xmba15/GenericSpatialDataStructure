@@ -11,3 +11,5 @@ This library contains the implementation of spatial-partioning-related data stru
 
 
 ![Point Cloud Visualization With Matplotlibcpp](./docs/images/easy_jet.png)
+
+![Point Cloud Octree Visualization With Matplotlibcpp](./docs/images/jet_octree_matplotlib.png)
