@@ -20,7 +20,6 @@
 
 #if ENABLE_VISUALIZATION
 #include <matplotlib_cpp/MatplotlibCpp.hpp>
-
 // import modules of matplotlib library
 static pe::vis::Matplotlib mpllib;
 #endif  // ENABLE_VISUALIZATION
