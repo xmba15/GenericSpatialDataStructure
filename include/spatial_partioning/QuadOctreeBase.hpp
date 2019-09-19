@@ -721,7 +721,9 @@ template <typename DATA_TYPE, size_t POINT_DIMENSION, class PointContainer>
 QuadOctreeBase<DATA_TYPE, POINT_DIMENSION, PointContainer>::QuadOctreeBaseNode::~QuadOctreeBaseNode()
 {
     for (uint32_t i = 0; i < NUM_CHILD; ++i) {
-        free(child[i]);
+        if (child[i]) {
+            delete child[i];
+        }
     }
 }
 
